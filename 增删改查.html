@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>增删改查</title>
+    <style>
+      .avatars {
+        width: 100px;
+        max-height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <ul>
+        <li><input type="text" v-model="name" placeholder="请输入名字" /></li>
+        <li>
+          <textarea
+            v-model="skills"
+            placeholder="请输入技能"
+            cols="30"
+            rows="10"
+          ></textarea>
+        </li>
+        <li>
+          <textarea
+            v-model="img"
+            placeholder="请输入一个头像地址"
+            cols="30"
+            rows="10"
+          ></textarea>
+        </li>
+        <li><button @click="saveHandle">保存</button></li>
+      </ul>
+      <hr />
+
+      <input v-model="keyWord" type="text" placeholder="请输入关键字" />
+      <table>
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>名字</th>
+            <th>头像</th>
+            <th>技能</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(p,i) in searchResult" :key="i">
+            <td>{{ i + 1 }}</td>
+            <td>{{ p.name }}</td>
+            <td><img class="avatars" :src="p.img" :alt="p.name" /></td>
+            <td>{{ p.skills }}</td>
+            <td>
+              <a href="javascript:void(0)" @click="editHandle(p.id)">【修改】</a
+              ><a href="javascript:void(0)" @click="delHandle(p.id)"
+                >【删除】</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script src="./libs/vue.js"></script>
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          name: '',
+          img: '',
+          skills: '',
+          people: [],
+          selectedIndex: -1, // 当前选中的值
+          keyWord: '',
+        },
+        methods: {
+          saveHandle() {
+            if (this.name) {
+              if (this.selectedIndex > -1) {
+                this.people[this.selectedIndex].name = this.name;
+                this.people[this.selectedIndex].skills = this.skills;
+                this.people[this.selectedIndex].img = this.img;
+                this.selectedIndex = -1;
+              } else {
+                this.people.push({
+                  id: Date.now(),
+                  name: this.name,
+                  img: this.img
+                    ? this.img
+                    : 'http://img1.imgtn.bdimg.com/it/u=3837986645,1062114492&fm=26&gp=0.jpg',
+                  skills: this.skills,
+                });
+              }
+              // 清空输入框中的数据
+              this.img = '';
+              this.name = '';
+              this.skills = '';
+            } else {
+              alert('名字不能为空');
+            }
+          },
+          // 根据id获取索引
+          findIndexById(id) {
+            return this.people.findIndex(item => item.id == id);
+          },
+          editHandle(id) {
+            this.selectedIndex = this.findIndexById(id);
+            this.name = this.people[this.selectedIndex].name;
+            this.img = this.people[this.selectedIndex].img;
+            this.skills = this.people[this.selectedIndex].skills;
+          },
+          delHandle(id) {
+            var index = this.findIndexById(id);
+            if (confirm('是否确认删除此项？')) {
+              this.people.splice(index, 1);
+            }
+          },
+        },
+        computed: {
+          // 计算属性
+          searchResult() {
+            if (this.keyWord) {
+              return this.people.filter(
+                item =>
+                  item.name.indexOf(this.keyWord) > -1 ||
+                  item.skills.indexOf(this.keyWord) > -1
+              );
+            } else {
+              return this.people;
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
